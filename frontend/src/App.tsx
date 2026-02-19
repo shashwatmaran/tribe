@@ -10,6 +10,7 @@ import SetupPayment from "./pages/SetupPayment";
 import GroupDashboard from "./pages/GroupDashboard";
 import BillingHistory from "./pages/BillingHistory";
 import ActionRequired from "./pages/ActionRequired";
+import Processing from "./pages/Processing";
 import PortalLayout from "./components/portal/PortalLayout";
 
 const queryClient = new QueryClient();
@@ -23,13 +24,14 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
 
-          {/* Portal routes */}
+          {/* Portal routes — BillingStatusProvider lives in PortalLayout */}
           <Route element={<PortalLayout />}>
             <Route path="/join/:inviteCode" element={<Join />} />
             <Route path="/setup-payment" element={<SetupPayment />} />
             <Route path="/group/:groupId" element={<GroupDashboard />} />
             <Route path="/group/:groupId/billing" element={<BillingHistory />} />
             <Route path="/action-required" element={<ActionRequired />} />
+            <Route path="/processing" element={<Processing />} />
           </Route>
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

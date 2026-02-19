@@ -5,9 +5,7 @@ const LandingNavbar = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto flex items-center justify-between h-14 px-6">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded bg-foreground flex items-center justify-center">
-            <span className="text-background font-mono text-xs font-bold">T</span>
-          </div>
+          <img src="/african-mask.png" alt="Tribe logo" className="w-6 h-6 rounded object-cover" />
           <span className="font-semibold text-sm tracking-tight">Tribe</span>
         </Link>
 

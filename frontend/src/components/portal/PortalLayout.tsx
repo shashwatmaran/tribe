@@ -1,7 +1,20 @@
-import { Link, Outlet, useParams } from "react-router-dom";
+import { Link, Outlet, useParams, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { BillingStatusProvider, useBillingStatus } from "@/context/BillingStatusContext";
+import BillingStatusIndicator from "./BillingStatusIndicator";
+import GlobalBlockingBanner from "./GlobalBlockingBanner";
 
-const PortalLayout = () => {
+const PortalInner = () => {
   const { groupId } = useParams();
+  const { status, groupName } = useBillingStatus();
+  const navigate = useNavigate();
+
+  // Only BLOCKED status auto-redirects — all other states stay on the current route
+  useEffect(() => {
+    if (status === "BLOCKED") {
+      navigate("/action-required", { replace: true });
+    }
+  }, [status, navigate]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -17,20 +30,30 @@ const PortalLayout = () => {
             {groupId && (
               <>
                 <span className="text-border">/</span>
-                <span className="text-sm text-muted-foreground font-mono">Family Plan</span>
+                <span className="text-sm text-muted-foreground font-mono">{groupName}</span>
               </>
             )}
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <BillingStatusIndicator />
             <span className="text-xs text-muted-foreground font-mono">alice@example.com</span>
           </div>
         </div>
       </header>
+
       <main className="container mx-auto px-6 py-10 max-w-2xl">
+        {/* Banner is self-gating — only renders for PAYMENT_DUE / PAYMENT_FAILED */}
+        <GlobalBlockingBanner />
         <Outlet />
       </main>
     </div>
   );
 };
+
+const PortalLayout = () => (
+  <BillingStatusProvider>
+    <PortalInner />
+  </BillingStatusProvider>
+);
 
 export default PortalLayout;
