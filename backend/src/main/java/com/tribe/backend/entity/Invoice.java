@@ -1,19 +1,21 @@
 package com.tribe.backend.entity;
 
+import com.tribe.backend.entity.enums.InvoiceStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "members")
+@Table(name = "invoices")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Member {
+public class Invoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -23,10 +25,14 @@ public class Member {
     private UUID groupId;
 
     @Column(nullable = false)
-    private String email;
+    private Integer totalAmount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private InvoiceStatus status;
 
     @Column(nullable = false)
-    private String status; // ACTIVE, FAILED
+    private LocalDate billingDate;
 
-    private LocalDateTime joinedAt;
+    private LocalDateTime createdAt;
 }

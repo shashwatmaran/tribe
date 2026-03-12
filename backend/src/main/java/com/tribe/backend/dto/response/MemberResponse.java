@@ -1,0 +1,21 @@
+package com.tribe.backend.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class MemberResponse {
+    private UUID id;
+    private UUID groupId;
+    private String email;
+    private String status;
+    private LocalDateTime joinedAt;
+}

@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Join from "./pages/Join";
@@ -13,33 +14,42 @@ import ActionRequired from "./pages/ActionRequired";
 import Processing from "./pages/Processing";
 import PortalLayout from "./components/portal/PortalLayout";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Routes>
-          <Route path="/" element={<Index />} />
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Routes>
+            <Route path="/" element={<Index />} />
 
-          {/* Portal routes — BillingStatusProvider lives in PortalLayout */}
-          <Route element={<PortalLayout />}>
-            <Route path="/join/:inviteCode" element={<Join />} />
-            <Route path="/setup-payment" element={<SetupPayment />} />
-            <Route path="/group/:groupId" element={<GroupDashboard />} />
-            <Route path="/group/:groupId/billing" element={<BillingHistory />} />
-            <Route path="/action-required" element={<ActionRequired />} />
-            <Route path="/processing" element={<Processing />} />
-          </Route>
+            {/* Portal routes — BillingStatusProvider lives in PortalLayout */}
+            <Route element={<PortalLayout />}>
+              <Route path="/join/:inviteCode" element={<Join />} />
+              <Route path="/setup-payment" element={<SetupPayment />} />
+              <Route path="/group/:groupId" element={<GroupDashboard />} />
+              <Route path="/group/:groupId/billing" element={<BillingHistory />} />
+              <Route path="/action-required" element={<ActionRequired />} />
+              <Route path="/processing" element={<Processing />} />
+            </Route>
 
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

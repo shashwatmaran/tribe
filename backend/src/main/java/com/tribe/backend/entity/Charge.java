@@ -1,5 +1,6 @@
 package com.tribe.backend.entity;
 
+import com.tribe.backend.entity.enums.ChargeStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,26 +8,30 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "members")
+@Table(name = "charges")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Member {
+public class Charge {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
-    private UUID groupId;
+    private UUID invoiceId;
 
     @Column(nullable = false)
-    private String email;
+    private UUID memberId;
 
     @Column(nullable = false)
-    private String status; // ACTIVE, FAILED
+    private Integer amount;
 
-    private LocalDateTime joinedAt;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ChargeStatus status;
+
+    private LocalDateTime createdAt;
 }

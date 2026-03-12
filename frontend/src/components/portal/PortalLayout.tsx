@@ -50,10 +50,14 @@ const PortalInner = () => {
   );
 };
 
-const PortalLayout = () => (
-  <BillingStatusProvider>
-    <PortalInner />
-  </BillingStatusProvider>
-);
+const PortalLayout = () => {
+  const { groupId } = useParams();
+  
+  return (
+    <BillingStatusProvider groupId={groupId}>
+      <PortalInner />
+    </BillingStatusProvider>
+  );
+};
 
 export default PortalLayout;
