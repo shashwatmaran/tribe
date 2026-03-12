@@ -2,15 +2,14 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { Users, Calendar, CreditCard, AlertCircle, Loader2 } from "lucide-react";
 import { useAddMember, useGroup } from "@/hooks/api";
 import { useState } from "react";
-import { useBillingStatus } from "@/context/BillingStatusContext";
 
 const Join = () => {
   const { inviteCode } = useParams();
+  const groupId = inviteCode || "";
   const navigate = useNavigate();
-  const { group, isLoading, error } = useGroup("test-group-id"); // This should come from invite code validation
-  const { status } = useBillingStatus();
+  const { data: group, isLoading, error } = useGroup(groupId);
   const [email, setEmail] = useState("");
-  const addMember = useAddMember("test-group-id");
+  const addMember = useAddMember(groupId);
 
   const formatCurrency = (amount: number, currency: string = "USD") => {
     const value = (amount / 100).toFixed(2);
@@ -21,7 +20,7 @@ const Join = () => {
   };
 
   const handleContinue = async () => {
-    if (!group || !email) return;
+    if (!group || !email || !groupId) return;
 
     addMember.mutate(
       { email },

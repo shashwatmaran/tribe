@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { Download, RotateCcw, AlertCircle, Loader2 } from "lucide-react";
-import { useInvoices, useRetryCharge } from "@/hooks/api";
+import { useCharges, useInvoices, useRetryCharge } from "@/hooks/api";
 import { Invoice } from "@/types/api";
 
 const BillingHistory = () => {
@@ -8,6 +8,7 @@ const BillingHistory = () => {
   if (!groupId) return <div>Invalid group ID</div>;
 
   const { data: invoices, isLoading, error } = useInvoices(groupId);
+  const { data: charges } = useCharges(groupId);
   const retryCharge = useRetryCharge(groupId);
 
   const formatCurrency = (amount: number, currency: string = "USD") => {
@@ -27,8 +28,8 @@ const BillingHistory = () => {
     });
   };
 
-  const handleRetry = (invoiceId: string) => {
-    retryCharge.mutate(invoiceId, {
+  const handleRetry = (chargeId: string) => {
+    retryCharge.mutate(chargeId, {
       onSuccess: () => {
         // Success notification could be shown here via toast
       },
@@ -104,52 +105,60 @@ const BillingHistory = () => {
           </thead>
           <tbody className="divide-y divide-border">
             {invoices.map((invoice: Invoice) => (
-              <tr key={invoice.id} className="hover:bg-surface/50 transition-colors">
-                <td className="px-4 py-3 text-sm font-mono text-foreground">{invoice.id.slice(0, 8)}</td>
-                <td className="px-4 py-3 text-sm text-muted-foreground">
-                  {formatDate(invoice.billingDate)}
-                </td>
-                <td className="px-4 py-3 text-sm font-mono text-foreground">
-                  {formatCurrency(invoice.totalAmount)}
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`text-xs font-mono px-2 py-0.5 rounded ${
-                      invoice.status === "PAID"
-                        ? "bg-success/10 text-success"
-                        : invoice.status === "FAILED"
-                          ? "bg-destructive/10 text-destructive"
-                          : "bg-amber-500/10 text-amber-600"
-                    }`}
-                  >
-                    {invoice.status.toLowerCase()}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    {invoice.status === "FAILED" && (
-                      <button
-                        onClick={() => handleRetry(invoice.id)}
-                        disabled={retryCharge.isPending}
-                        className="text-xs text-foreground hover:text-primary transition-colors flex items-center gap-1 disabled:opacity-50"
+              (() => {
+                const failedCharge = charges?.find(
+                  (charge) => charge.invoiceId === invoice.id && charge.status === "FAILED"
+                );
+
+                return (
+                  <tr key={invoice.id} className="hover:bg-surface/50 transition-colors">
+                    <td className="px-4 py-3 text-sm font-mono text-foreground">{invoice.id.slice(0, 8)}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {formatDate(invoice.billingDate)}
+                    </td>
+                    <td className="px-4 py-3 text-sm font-mono text-foreground">
+                      {formatCurrency(invoice.totalAmount)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`text-xs font-mono px-2 py-0.5 rounded ${
+                          invoice.status === "PAID"
+                            ? "bg-success/10 text-success"
+                            : invoice.status === "FAILED"
+                              ? "bg-destructive/10 text-destructive"
+                              : "bg-amber-500/10 text-amber-600"
+                        }`}
                       >
-                        {retryCharge.isPending ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <RotateCcw className="w-3 h-3" />
+                        {invoice.status.toLowerCase()}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {failedCharge && (
+                          <button
+                            onClick={() => handleRetry(failedCharge.id)}
+                            disabled={retryCharge.isPending}
+                            className="text-xs text-foreground hover:text-primary transition-colors flex items-center gap-1 disabled:opacity-50"
+                          >
+                            {retryCharge.isPending ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <RotateCcw className="w-3 h-3" />
+                            )}
+                            Retry
+                          </button>
                         )}
-                        Retry
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleDownloadPDF(invoice.id)}
-                      className="text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                        <button
+                          onClick={() => handleDownloadPDF(invoice.id)}
+                          className="text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })()
             ))}
           </tbody>
         </table>

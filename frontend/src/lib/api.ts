@@ -1,6 +1,12 @@
-import { ErrorResponse } from "@/types/api";
+import {
+  Charge,
+  ErrorResponse,
+  Group,
+  Invoice,
+  Member,
+} from "@/types/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:9000";
 
 export class APIError extends Error {
   constructor(
@@ -85,23 +91,23 @@ async function request<T>(
 // Group endpoints
 export const groupAPI = {
   create: (data: { platformGroupId: string; totalAmount: number; memberCount: number; currency: string }) =>
-    request("/api/groups", {
+    request<Group>("/api/groups", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   getAll: () =>
-    request("/api/groups", {
+    request<Group[]>("/api/groups", {
       method: "GET",
     }),
 
   getById: (id: string) =>
-    request(`/api/groups/${id}`, {
+    request<Group>(`/api/groups/${id}`, {
       method: "GET",
     }),
 
   generateInvoice: (groupId: string) =>
-    request(`/api/groups/${groupId}/invoices`, {
+    request<Invoice>(`/api/groups/${groupId}/invoices`, {
       method: "POST",
     }),
 };
@@ -109,18 +115,18 @@ export const groupAPI = {
 // Member endpoints
 export const memberAPI = {
   add: (groupId: string, data: { email: string }) =>
-    request(`/api/groups/${groupId}/members`, {
+    request<Member>(`/api/groups/${groupId}/members`, {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   getByGroupId: (groupId: string) =>
-    request(`/api/groups/${groupId}/members`, {
+    request<Member[]>(`/api/groups/${groupId}/members`, {
       method: "GET",
     }),
 
   remove: (groupId: string, memberId: string) =>
-    request(`/api/groups/${groupId}/members/${memberId}`, {
+    request<void>(`/api/groups/${groupId}/members/${memberId}`, {
       method: "DELETE",
     }),
 };
@@ -128,13 +134,13 @@ export const memberAPI = {
 // Invoice endpoints
 export const invoiceAPI = {
   getByGroupId: (groupId: string, params?: { page?: number; size?: number }) =>
-    request(`/api/groups/${groupId}/invoices`, {
+    request<Invoice[]>(`/api/groups/${groupId}/invoices`, {
       method: "GET",
       params,
     }),
 
   getById: (groupId: string, invoiceId: string) =>
-    request(`/api/groups/${groupId}/invoices/${invoiceId}`, {
+    request<Invoice>(`/api/groups/${groupId}/invoices/${invoiceId}`, {
       method: "GET",
     }),
 
@@ -149,12 +155,12 @@ export const invoiceAPI = {
 // Charge endpoints
 export const chargeAPI = {
   getByGroupId: (groupId: string) =>
-    request(`/api/groups/${groupId}/charges`, {
+    request<Charge[]>(`/api/groups/${groupId}/charges`, {
       method: "GET",
     }),
 
   retry: (chargeId: string) =>
-    request(`/api/charges/${chargeId}/retry`, {
+    request<Charge>(`/api/charges/${chargeId}/retry`, {
       method: "POST",
     }),
 };
